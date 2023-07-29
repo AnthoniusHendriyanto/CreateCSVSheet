@@ -35,7 +35,6 @@ func main() {
 		fmt.Println("Error reading input:", err)
 		return
 	}
-
 	fileNameWithExtension := filename + ".csv"
 
 	// We're set the column names
