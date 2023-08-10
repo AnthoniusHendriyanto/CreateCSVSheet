@@ -9,6 +9,39 @@ import (
 	"time"
 )
 
+type BankInfo struct {
+	Code           string
+	AccountNumbers []string
+}
+
+// Sandbox
+// var banks = []BankInfo{
+// 	{"GNESIDJA", []string{"510654320"}},
+// 	{"BNINIDJA", []string{"230554355", "23504355"}},
+// }
+
+// SandboxNobu
+// var banks = []BankInfo{
+// 	{"BRINIDJA", []string{"220655565"}},
+// }
+
+// Sandbox Failed Cases Inquiry
+// var banks = []BankInfo{
+// 	{"GNESIDJA", []string{"510654311", "510654320", "23504355", "1150475578", "1255475578"}},
+// }
+
+// Productionf
+var banks = []BankInfo{
+	// BNI
+	{"BNINIDJA", []string{"733612148"}},
+	// BCA
+	{"CENAIDJA", []string{"5055261919"}},
+	// CIMB
+	{"BNIAIDJA", []string{"800137476800"}},
+	// Mandiri
+	{"BMRIIDJA", []string{"1240088988895"}},
+}
+
 // Function: generateRandomPhoneNumber
 // Description: Function for generating random phone number
 // Returns: It will return a string of phone number that starts with 628 and followed by 8 random digits
@@ -28,27 +61,10 @@ func generateRandomAmount() int {
 }
 
 func main() {
-	var filename string
-	fmt.Print("Enter the filename for the CSV: ")
-	_, err := fmt.Scanf("%s", &filename)
-	if err != nil {
-		fmt.Println("Error reading input:", err)
-		return
-	}
-	fileNameWithExtension := filename + ".csv"
-
-	// We're set the column names
-	columnNames := []string{
-		"Beneficiary Bank Code",
-		"Beneficiary Account Number",
-		"Mobile Number",
-		"Amount",
-	}
-
-	// Prompt the user to enter the number of rows they want to generate
+	// Number of rows we want to generate
 	var numRows int
 	fmt.Print("Enter the number of rows: ")
-	_, err = fmt.Scanf("%d", &numRows)
+	_, err := fmt.Scanf("%d", &numRows)
 	if err != nil {
 		fmt.Println("Error reading input:", err)
 		return
@@ -61,19 +77,35 @@ func main() {
 
 	// Generate rows
 	for i := 0; i < numRows; i++ {
+		// Randomly select a bank
+		bank := banks[rand.Intn(len(banks))]
+
+		// Randomly select an accountNumber from the bank's accountNumbers list
+		accountNumber := bank.AccountNumbers[rand.Intn(len(bank.AccountNumbers))]
+
 		rows[i] = []string{
-			"GNESIDJA",
-			"510654320",
+			bank.Code,
+			accountNumber,
 			generateRandomPhoneNumber(),
 		}
 
 		// Sum the total amount
-		amount := generateRandomAmount()
+		amount := 10000
 
 		totalAmount += amount
 
 		rows[i] = append(rows[i], fmt.Sprintf("%d", amount))
 	}
+
+	var filename string
+	fmt.Print("Enter the filename for the CSV: ")
+	_, err = fmt.Scanf("%s", &filename)
+	if err != nil {
+		fmt.Println("Error reading input:", err)
+		return
+	}
+
+	fileNameWithExtension := filename + ".csv"
 
 	// Create a new CSV file
 	file, err := os.Create(fileNameWithExtension)
@@ -86,6 +118,14 @@ func main() {
 	// Create a new CSV writer
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
+
+	// We're set the column names
+	columnNames := []string{
+		"Beneficiary Bank Code",
+		"Beneficiary Account Number",
+		"Mobile Number",
+		"Amount",
+	}
 
 	// Write column names to the CSV file
 	err = writer.Write(columnNames)
